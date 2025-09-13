@@ -4,7 +4,7 @@ import connectDB from "./db/connection.js";
 import doctorRoutes from "./routes/docRoutes.js";
 import patientRoutes from "./routes/patientRoutes.js"
 import prescriptionRoutes from "./routes/prescriptionRoutes.js"
-
+import storeRoutes from "./routes/storeRoutes.js"
 const app = express();
 
 app.use(cors());
@@ -17,6 +17,7 @@ connectDB();
 app.use("/api", doctorRoutes);
 app.use("/api/p",patientRoutes);
 app.use("/api/med", prescriptionRoutes);
+app.use("/api/s",storeRoutes)
 
 // Test route
 app.get("/", (req, res) => {
