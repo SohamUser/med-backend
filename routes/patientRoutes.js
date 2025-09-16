@@ -92,4 +92,45 @@ router.get("/doctors/:id/queue", async (req, res) => {
   }
 });
 
+
+
+// GET current ongoing appointment for a patient
+router.get("/:patientId/appointment", async (req, res) => {
+  try {
+    const { patientId } = req.params;
+
+    // check if patient exists
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    // check if patient is in any doctor's queue
+    const doctor = await Doctor.findOne({ queue: patientId }).select(
+      "name specialization queue patientsInQueue"
+    );
+
+    if (!doctor) {
+      return res.json({ ongoing: false, message: "No active appointment found" });
+    }
+
+    return res.json({
+      ongoing: true,
+      doctor: {
+        id: doctor._id,
+        name: doctor.name,
+        specialization: doctor.specialization,
+        patientsInQueue: doctor.patientsInQueue,
+      },
+      patient: {
+        id: patient._id,
+        name: patient.name,
+      },
+    });
+  } catch (err) {
+    console.error("Error fetching appointment:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 export default router;
