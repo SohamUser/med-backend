@@ -1,6 +1,7 @@
 import express from "express";
 import Doctor from "../models/Doctor.js";
 import Patient from "../models/Patient.js";
+import { notifyDoctorUpdate } from "../main.js";
 
 const router = express.Router();
 
@@ -31,7 +32,7 @@ router.post("/doctor/:doctorId/queue", async (req, res) => {
     doctor.queue.push(patient._id);
     doctor.patientsInQueue = doctor.queue.length;
     await doctor.save();
-
+    notifyDoctorUpdate(doctorId);
     res.json(doctor);
   } catch (err) {
     res.status(400).json({ error: err.message });

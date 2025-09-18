@@ -1,6 +1,7 @@
 import express from "express";
 import  Patient from "../models/Patient.js";
 import  Doctor  from "../models/Doctor.js";
+import { io, notifyDoctorUpdate } from "../main.js";
 
 const router = express.Router();
 
@@ -28,6 +29,12 @@ router.post("/doctors/:id/consult", async (req, res) => {
       doctor.queue.push(patient._id);
 doctor.patientsInQueue = doctor.queue.length;
 await doctor.save();
+
+io.emit("queueUpdate", {
+  doctorId,
+  patientsInQueue: doctor.patientsInQueue,
+  queue: doctor.queue
+});
   
       res.json({ message: "Consultation request sent", doctor });
     } catch (error) {
@@ -57,6 +64,7 @@ router.patch("/doctors/:id/finish", async (req, res) => {
       doctor.consultedPatients.push(finishedPatient._id);
   
       await doctor.save();
+      notifyDoctorUpdate(doctorId);
   
       res.json({
         message: "Patient consultation finished",
